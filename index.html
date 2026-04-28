@@ -6,10 +6,32 @@
     <meta name="theme-color" content="#0f766e" />
     <title>Lagerung Verbrauchsmaterialien</title>
     <link rel="manifest" href="manifest.webmanifest" />
-    <link rel="stylesheet" href="styles.css?v=22" />
+    <link rel="stylesheet" href="styles.css?v=23" />
   </head>
   <body>
-    <header class="topbar">
+    <section id="authGate" class="auth-gate" hidden>
+      <form id="authForm" class="auth-panel">
+        <img class="auth-logo" src="boro-logo-icon.png" alt="" />
+        <p class="eyebrow">BORO Pflegedienst</p>
+        <h1>Inventar</h1>
+        <p class="auth-copy">Melde dich an, um den Materialbestand online zu laden und zu speichern.</p>
+        <label>
+          <span>E-Mail</span>
+          <input id="authEmail" type="email" autocomplete="email" required />
+        </label>
+        <label>
+          <span>Passwort</span>
+          <input id="authPassword" type="password" autocomplete="current-password" required minlength="6" />
+        </label>
+        <p id="authMessage" class="auth-message" role="status"></p>
+        <div class="auth-actions">
+          <button type="submit" class="primary">Anmelden</button>
+          <button type="button" id="signUpButton">Konto erstellen</button>
+        </div>
+      </form>
+    </section>
+
+    <header class="topbar" id="appHeader" hidden>
       <button type="button" class="brand" id="brandHome" aria-label="Zur Übersicht">
         <img class="brand-logo" src="boro-logo-icon.png" alt="" />
         <div>
@@ -17,12 +39,15 @@
           <h1 id="appTitle">Übersicht</h1>
         </div>
       </button>
-      <button class="icon-button" id="openMenu" aria-label="Menü">
-        <span aria-hidden="true">☰</span>
-      </button>
+      <div class="topbar-actions">
+        <button type="button" id="logoutButton">Abmelden</button>
+        <button class="icon-button" id="openMenu" aria-label="Menü">
+          <span aria-hidden="true">☰</span>
+        </button>
+      </div>
     </header>
 
-    <main>
+    <main id="appMain" hidden>
       <section id="overviewPage" class="page">
         <section class="summary-grid" aria-label="Übersicht">
           <button class="metric is-alert" type="button" data-summary-filter="low">
@@ -271,7 +296,7 @@
     </dialog>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="seed-data.js?v=22"></script>
-    <script src="app.js?v=22"></script>
+    <script src="seed-data.js?v=23"></script>
+    <script src="app.js?v=23"></script>
   </body>
 </html>

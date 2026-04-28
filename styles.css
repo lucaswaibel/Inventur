@@ -65,6 +65,52 @@ main {
   overflow-x: hidden;
 }
 
+.auth-gate {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: 24px 16px;
+}
+
+.auth-panel {
+  display: grid;
+  gap: 12px;
+  width: min(420px, 100%);
+  padding: 22px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+
+.auth-logo {
+  width: 56px;
+  height: 56px;
+  border-radius: 8px;
+}
+
+.auth-copy,
+.auth-message {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.auth-message:not(:empty) {
+  padding: 10px 12px;
+  background: #f8faf9;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.auth-actions,
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
 .topbar {
   position: sticky;
   top: 0;

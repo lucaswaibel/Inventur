@@ -12,6 +12,7 @@ let state = loadState();
 let supabaseClient = null;
 let cloudSaveTimer = null;
 let cloudSyncEnabled = false;
+let currentUser = null;
 let filters = {
   query: "",
   category: "Alle",
@@ -145,8 +146,28 @@ async function initializeCloudState() {
   supabaseClient = createSupabaseClient();
   if (!supabaseClient) {
     console.warn("Supabase SDK nicht geladen. Die App nutzt nur den lokalen Speicher.");
+    setAuthMessage("Supabase konnte nicht geladen werden.");
+    renderAuthState(null);
     return;
   }
+  const { data } = await supabaseClient.auth.getSession();
+  currentUser = data.session?.user || null;
+  renderAuthState(currentUser);
+  supabaseClient.auth.onAuthStateChange((_event, session) => {
+    currentUser = session?.user || null;
+    cloudSyncEnabled = Boolean(currentUser);
+    renderAuthState(currentUser);
+    if (currentUser) {
+      loadStateFromCloud();
+    }
+  });
+  if (currentUser) {
+    await loadStateFromCloud();
+  }
+}
+
+async function loadStateFromCloud() {
+  if (!supabaseClient || !currentUser) return;
   cloudSyncEnabled = true;
   const { data, error } = await supabaseClient
     .from(CLOUD_STATE_TABLE)
@@ -155,6 +176,7 @@ async function initializeCloudState() {
     .maybeSingle();
   if (error) {
     console.warn("Supabase konnte nicht geladen werden. Prüfe Tabelle und Policies.", error);
+    setAuthMessage("Angemeldet, aber Cloud-Daten konnten nicht geladen werden. Prüfe die Supabase Policies.");
     return;
   }
   if (data?.data) {
@@ -166,8 +188,63 @@ async function initializeCloudState() {
   await saveStateToCloud();
 }
 
+function renderAuthState(user) {
+  const signedIn = Boolean(user);
+  $("#authGate").hidden = signedIn;
+  $("#appHeader").hidden = !signedIn;
+  $("#appMain").hidden = !signedIn;
+  $("#menuDialog").close?.();
+  if (signedIn) {
+    $("#authMessage").textContent = "";
+  }
+}
+
+function setAuthMessage(message) {
+  const target = $("#authMessage");
+  if (target) target.textContent = message || "";
+}
+
+async function signIn(event) {
+  event.preventDefault();
+  if (!supabaseClient) return setAuthMessage("Supabase ist noch nicht geladen.");
+  setAuthMessage("Anmeldung läuft...");
+  const { error } = await supabaseClient.auth.signInWithPassword({
+    email: $("#authEmail").value.trim(),
+    password: $("#authPassword").value,
+  });
+  if (error) {
+    setAuthMessage(error.message);
+    return;
+  }
+  setAuthMessage("");
+}
+
+async function signUp() {
+  if (!supabaseClient) return setAuthMessage("Supabase ist noch nicht geladen.");
+  const form = $("#authForm");
+  if (!form.reportValidity()) return;
+  setAuthMessage("Konto wird erstellt...");
+  const { error } = await supabaseClient.auth.signUp({
+    email: $("#authEmail").value.trim(),
+    password: $("#authPassword").value,
+  });
+  if (error) {
+    setAuthMessage(error.message);
+    return;
+  }
+  setAuthMessage("Konto erstellt. Falls Supabase E-Mail-Bestätigung verlangt, bestätige bitte die E-Mail und melde dich danach an.");
+}
+
+async function signOut() {
+  if (!supabaseClient) return;
+  await supabaseClient.auth.signOut();
+  cloudSyncEnabled = false;
+  currentUser = null;
+  renderAuthState(null);
+}
+
 function scheduleCloudSave() {
-  if (!cloudSyncEnabled || !supabaseClient) return;
+  if (!cloudSyncEnabled || !supabaseClient || !currentUser) return;
   window.clearTimeout(cloudSaveTimer);
   cloudSaveTimer = window.setTimeout(() => {
     saveStateToCloud();
@@ -175,7 +252,7 @@ function scheduleCloudSave() {
 }
 
 async function saveStateToCloud() {
-  if (!cloudSyncEnabled || !supabaseClient) return;
+  if (!cloudSyncEnabled || !supabaseClient || !currentUser) return;
   const { error } = await supabaseClient
     .from(CLOUD_STATE_TABLE)
     .upsert({
@@ -1995,6 +2072,9 @@ $("#exportJson").addEventListener("click", exportJson);
 $("#exportCsv").addEventListener("click", exportCsv);
 $("#importJson").addEventListener("change", (event) => importJsonFile(event.target.files[0]));
 $("#resetData").addEventListener("click", resetData);
+$("#authForm").addEventListener("submit", signIn);
+$("#signUpButton").addEventListener("click", signUp);
+$("#logoutButton").addEventListener("click", signOut);
 
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("sw.js").catch(() => {});
