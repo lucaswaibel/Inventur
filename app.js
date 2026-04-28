@@ -240,6 +240,9 @@ async function signUp() {
 
 function authRedirectUrl() {
   if (window.location.protocol === "file:") {
+    return "https://lucaswaibel.github.io/Inventur/";
+  }
+  if (window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost") {
     return "http://127.0.0.1:8000/index.html";
   }
   return `${window.location.origin}${window.location.pathname}`;
