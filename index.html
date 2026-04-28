@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0f766e" />
+    <title>Lagerung Verbrauchsmaterialien</title>
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="stylesheet" href="styles.css?v=22" />
+  </head>
+  <body>
+    <header class="topbar">
+      <button type="button" class="brand" id="brandHome" aria-label="Zur Übersicht">
+        <img class="brand-logo" src="boro-logo-icon.png" alt="" />
+        <div>
+          <p class="eyebrow">BORO Pflegedienst</p>
+          <h1 id="appTitle">Übersicht</h1>
+        </div>
+      </button>
+      <button class="icon-button" id="openMenu" aria-label="Menü">
+        <span aria-hidden="true">☰</span>
+      </button>
+    </header>
+
+    <main>
+      <section id="overviewPage" class="page">
+        <section class="summary-grid" aria-label="Übersicht">
+          <button class="metric is-alert" type="button" data-summary-filter="low">
+            <span class="metric-label">Unter Mindestbestand</span>
+            <strong id="lowCount">0</strong>
+          </button>
+          <button class="metric" type="button" data-summary-filter="all">
+            <span class="metric-label">Artikel</span>
+            <strong id="itemCount">0</strong>
+          </button>
+          <button class="metric" type="button" data-summary-filter="locations">
+            <span class="metric-label">Lagerorte</span>
+            <strong id="locationCount">0</strong>
+          </button>
+        </section>
+        <section class="analysis-sections" id="overviewSections"></section>
+      </section>
+
+      <section id="inventoryListPage" class="page" hidden>
+        <section class="controls" aria-label="Filter">
+          <label class="search">
+            <span aria-hidden="true">⌕</span>
+            <input id="searchInput" type="search" placeholder="Suchen" autocomplete="off" />
+          </label>
+          <label class="select-field">
+            <span>Bestandsmenge</span>
+            <select id="statusFilter">
+              <option value="all">Alle</option>
+              <option value="low">Knapp</option>
+              <option value="ok">OK</option>
+            </select>
+          </label>
+          <label class="select-field">
+            <span>Kategorie</span>
+            <select id="categoryFilter"></select>
+          </label>
+          <label class="select-field">
+            <span>Lagerort</span>
+            <select id="locationFilter"></select>
+          </label>
+        </section>
+
+        <section id="listView">
+          <section class="list-head">
+            <h2 id="listTitle">Inventar</h2>
+            <button class="primary" id="addItem">+ Artikel</button>
+          </section>
+
+          <section class="materials" id="materialsList" aria-live="polite"></section>
+        </section>
+
+        <section id="productView" class="product-view" hidden></section>
+      </section>
+
+      <section id="activityPage" class="page" hidden>
+        <section class="page-head">
+          <h2>Letzte Buchungen</h2>
+        </section>
+        <ol class="movement-list" id="movementPageList"></ol>
+      </section>
+
+      <section id="inventoryPage" class="page" hidden>
+        <section class="page-head">
+          <h2>Inventur</h2>
+          <div class="page-actions">
+            <button type="button" id="addInventoryItem">+ Artikel</button>
+            <button type="button" class="primary" id="confirmInventory">Inventur bestätigen</button>
+          </div>
+        </section>
+        <section class="controls" aria-label="Inventurfilter">
+          <label class="search">
+            <span aria-hidden="true">⌕</span>
+            <input id="inventorySearchInput" type="search" placeholder="Suchen" autocomplete="off" />
+          </label>
+          <label class="select-field">
+            <span>Kategorie</span>
+            <select id="inventoryCategoryFilter"></select>
+          </label>
+          <label class="select-field">
+            <span>Lagerort</span>
+            <select id="inventoryLocationFilter"></select>
+          </label>
+        </section>
+        <section class="inventory-status" id="inventoryStatus"></section>
+        <section class="inventory-list" id="inventoryCountList"></section>
+      </section>
+
+      <section id="analyticsPage" class="page" hidden>
+        <section class="page-head">
+          <h2>Auswertungen</h2>
+        </section>
+        <section class="controls analysis-controls" aria-label="Auswertungsfilter">
+          <label class="select-field">
+            <span>Bestandsmenge</span>
+            <select id="analysisStatusFilter">
+              <option value="all">Alle</option>
+              <option value="low">Knapp</option>
+              <option value="ok">OK</option>
+            </select>
+          </label>
+          <label class="select-field">
+            <span>Kategorie</span>
+            <select id="analysisCategoryFilter"></select>
+          </label>
+          <label class="select-field">
+            <span>Lagerort</span>
+            <select id="analysisLocationFilter"></select>
+          </label>
+          <div class="analysis-item-picker">
+            <label class="select-field">
+              <span>Artikel</span>
+              <input id="analysisItemSearch" type="search" placeholder="Artikel suchen" autocomplete="off" />
+            </label>
+            <div class="analysis-item-dropdown" id="analysisItemDropdown"></div>
+            <div class="selected-items" id="analysisSelectedItems"></div>
+          </div>
+          <label class="select-field">
+            <span>Zeitraum</span>
+            <select id="analysisPeriodFilter">
+              <option value="month">1 Monat</option>
+              <option value="week">1 Woche</option>
+              <option value="year">1 Jahr</option>
+              <option value="custom">Eigener Zeitraum</option>
+            </select>
+          </label>
+          <label class="select-field">
+            <span>Von</span>
+            <input id="analysisFromDate" type="date" />
+          </label>
+          <label class="select-field">
+            <span>Bis</span>
+            <input id="analysisToDate" type="date" />
+          </label>
+        </section>
+        <section class="analysis-sections" id="analysisTables"></section>
+      </section>
+
+      <section id="optionsPage" class="page" hidden>
+        <section class="page-head">
+          <h2>Optionen</h2>
+        </section>
+        <form class="options-panel" id="optionsForm">
+          <label>
+            <span>Kategorien</span>
+            <textarea id="categoryListInput" rows="8"></textarea>
+          </label>
+          <label>
+            <span>Lagerorte</span>
+            <textarea id="locationListInput" rows="8"></textarea>
+          </label>
+          <div class="option-actions">
+            <button type="submit" class="primary">Listen speichern</button>
+          </div>
+        </form>
+        <section class="options-panel">
+          <h3>Daten</h3>
+          <div class="action-list">
+            <button type="button" id="exportJson">Export JSON</button>
+            <button type="button" id="exportCsv">Export CSV</button>
+            <label class="file-action">
+              <span>Import JSON</span>
+              <input type="file" id="importJson" accept="application/json" />
+            </label>
+            <button type="button" class="danger" id="resetData">Startdaten neu laden</button>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <dialog id="menuDialog" class="menu-dialog">
+      <form method="dialog" class="dialog-panel menu-panel">
+        <div class="dialog-head">
+          <h2>Menü</h2>
+          <button class="icon-button" value="cancel" aria-label="Schließen">×</button>
+        </div>
+        <nav class="menu-list" aria-label="Menü">
+          <button type="button" data-page="overview">Übersicht</button>
+          <button type="button" data-page="inventoryList">Inventar</button>
+          <button type="button" data-page="inventory">Inventur</button>
+          <button type="button" data-page="activity">Letzte Buchungen</button>
+          <button type="button" data-page="analytics">Auswertungen</button>
+          <button type="button" data-page="options">Optionen</button>
+        </nav>
+      </form>
+    </dialog>
+
+    <dialog id="itemDialog">
+      <form method="dialog" class="dialog-panel" id="itemForm">
+        <div class="dialog-head">
+          <h2 id="dialogTitle">Artikel</h2>
+          <button type="button" class="icon-button" data-action="close-item-dialog" aria-label="Schließen">×</button>
+        </div>
+        <input type="hidden" id="itemId" />
+        <label>
+          <span>Material</span>
+          <input id="itemName" required />
+        </label>
+        <label>
+          <span>Kategorie</span>
+          <input id="itemCategory" list="categoryOptions" required />
+        </label>
+        <label>
+          <span>Marke / Produkt</span>
+          <input id="itemBrand" />
+        </label>
+        <div class="field-row package-row">
+          <label>
+            <span>Packungsgröße Zahl</span>
+            <input id="itemPackageQuantity" type="number" min="0" step="1" inputmode="numeric" />
+          </label>
+          <label>
+            <span>Einheit</span>
+            <input id="itemPackageUnit" placeholder="z.B. Stück (pro Packung)" />
+          </label>
+        </div>
+        <div class="field-row">
+          <label>
+            <span>Mindestbestand Sollmenge</span>
+            <input id="itemMin" type="number" min="0" inputmode="numeric" />
+          </label>
+          <label>
+            <span>Maximalbestand Sollmenge</span>
+            <input id="itemMax" type="number" min="0" inputmode="numeric" />
+          </label>
+        </div>
+        <p class="form-hint">Diese Werte beschreiben den gewünschten Lagerbestand, sie begrenzen nicht die eingebbare Buchungsmenge.</p>
+        <section class="storage-editor">
+          <div class="storage-editor-head">
+            <span>Lagerplätze</span>
+            <button type="button" id="addStorageLocation">+ Platz</button>
+          </div>
+          <div id="storageLocationRows" class="storage-location-rows"></div>
+        </section>
+        <label>
+          <span>Notiz</span>
+          <textarea id="itemNotes" rows="3"></textarea>
+        </label>
+        <datalist id="categoryOptions"></datalist>
+        <menu class="dialog-actions">
+          <button type="button" class="danger" id="deleteItem">Löschen</button>
+          <span></span>
+          <button type="button" data-action="close-item-dialog">Abbrechen</button>
+          <button type="button" class="primary" id="saveItem">Speichern</button>
+        </menu>
+      </form>
+    </dialog>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="seed-data.js?v=22"></script>
+    <script src="app.js?v=22"></script>
+  </body>
+</html>
