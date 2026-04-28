@@ -227,12 +227,22 @@ async function signUp() {
   const { error } = await supabaseClient.auth.signUp({
     email: $("#authEmail").value.trim(),
     password: $("#authPassword").value,
+    options: {
+      emailRedirectTo: authRedirectUrl(),
+    },
   });
   if (error) {
     setAuthMessage(error.message);
     return;
   }
   setAuthMessage("Konto erstellt. Falls Supabase E-Mail-Bestätigung verlangt, bestätige bitte die E-Mail und melde dich danach an.");
+}
+
+function authRedirectUrl() {
+  if (window.location.protocol === "file:") {
+    return "http://127.0.0.1:8000/index.html";
+  }
+  return `${window.location.origin}${window.location.pathname}`;
 }
 
 async function signOut() {

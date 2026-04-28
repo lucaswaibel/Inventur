@@ -1,10 +1,10 @@
-const CACHE_NAME = "lagerung-materialien-v23";
+const CACHE_NAME = "lagerung-materialien-v24";
 const ASSETS = [
   "./",
   "./index.html",
-  "./styles.css?v=23",
-  "./app.js?v=23",
-  "./seed-data.js?v=23",
+  "./styles.css?v=24",
+  "./app.js?v=24",
+  "./seed-data.js?v=24",
   "./manifest.webmanifest",
   "./boro-logo-icon.png",
 ];
