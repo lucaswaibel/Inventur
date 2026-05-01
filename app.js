@@ -150,6 +150,7 @@ async function initializeCloudState() {
     renderAuthState(null);
     return;
   }
+  await handleAuthRedirect();
   const { data } = await supabaseClient.auth.getSession();
   currentUser = data.session?.user || null;
   renderAuthState(currentUser);
@@ -164,6 +165,38 @@ async function initializeCloudState() {
   if (currentUser) {
     await loadStateFromCloud();
   }
+}
+
+async function handleAuthRedirect() {
+  const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+  const accessToken = hash.get("access_token");
+  const refreshToken = hash.get("refresh_token");
+  if (accessToken && refreshToken) {
+    const { error } = await supabaseClient.auth.setSession({
+      access_token: accessToken,
+      refresh_token: refreshToken,
+    });
+    cleanAuthUrl();
+    if (error) {
+      console.warn("Supabase Redirect-Session konnte nicht übernommen werden.", error);
+      setAuthMessage("Der Login-Link konnte nicht übernommen werden. Bitte fordere einen neuen Link an.");
+    }
+    return;
+  }
+
+  const code = new URLSearchParams(window.location.search).get("code");
+  if (code) {
+    const { error } = await supabaseClient.auth.exchangeCodeForSession(code);
+    cleanAuthUrl();
+    if (error) {
+      console.warn("Supabase Auth-Code konnte nicht übernommen werden.", error);
+      setAuthMessage("Der Login-Code konnte nicht übernommen werden. Bitte fordere einen neuen Link an.");
+    }
+  }
+}
+
+function cleanAuthUrl() {
+  window.history.replaceState({}, document.title, window.location.pathname);
 }
 
 async function loadStateFromCloud() {
